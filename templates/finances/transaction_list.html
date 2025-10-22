@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Мої транзакції{% endblock %}
+{% block content %}
+<h1 class="h4 mb-3">Мої транзакції</h1>
+
+<form class="row g-2 mb-3">
+  <div class="col-auto"><input name="q" class="form-control" placeholder="Пошук..." value="{{ request.GET.q }}"></div>
+  <div class="col-auto"><input name="day" type="date" class="form-control" value="{{ request.GET.day }}"></div>
+  <div class="col-auto">
+    <select name="table" class="form-select">
+      <option value="">Всі таблиці</option>
+      {% for t in tables %}
+        <option value="{{ t.id }}" {% if request.GET.table == t.id|stringformat:'s' %}selected{% endif %}>{{ t.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-auto"><button class="btn btn-outline-primary">Фільтр</button></div>
+  <div class="col-auto"><a class="btn btn-success" href="{% url 'finances:transaction_create' %}">Додати</a></div>
+</form>
+
+<div class="mb-3">
+  <strong>Суми за валютами:</strong>
+  {% for row in totals_by_currency %}
+    <span class="badge bg-secondary">{{ row.total }} {{ row.currency }}</span>
+  {% empty %}
+    <em>Немає даних</em>
+  {% endfor %}
+</div>
+
+<table class="table table-striped">
+  <thead><tr><th>Дата</th><th>Назва</th><th>Сума</th><th>Категорії</th><th>Таблиця</th><th></th></tr></thead>
+  <tbody>
+    {% for tx in object_list %}
+      <tr>
+        <td>{{ tx.date }}</td>
+        <td>{{ tx.title }}</td>
+        <td>{{ tx.amount }} {{ tx.currency }}</td>
+        <td>{% for c in tx.categories.all %}<span class="badge bg-light text-dark">{{ c.name }}</span>{% empty %}-{% endfor %}</td>
+        <td>{{ tx.table.name }}</td>
+        <td>
+          <a class="btn btn-sm btn-outline-primary" href="{% url 'finances:transaction_update' tx.pk %}">Edit</a>
+          <a class="btn btn-sm btn-outline-danger" href="{% url 'finances:transaction_delete' tx.pk %}">Delete</a>
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="6"><em>Поки що порожньо</em></td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

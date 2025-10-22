@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Підтвердження{% endblock %}
+{% block content %}
+<h1 class="h5 mb-3">Видалити?</h1>
+<form method="post" class="card p-3">
+  {% csrf_token %}
+  <p>Підтвердити видалення: <strong>{{ object }}</strong></p>
+  <button class="btn btn-danger">Так, видалити</button>
+  <a class="btn btn-light" href="javascript:history.back()">Скасувати</a>
+</form>
+{% endblock %}

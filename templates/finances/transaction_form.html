@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Транзакція{% endblock %}
+{% block content %}
+<h1 class="h4 mb-3">Транзакція</h1>
+<form method="post" class="card p-3">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button class="btn btn-primary">Зберегти</button>
+  <a class="btn btn-light" href="{% url 'finances:transaction_list' %}">Скасувати</a>
+</form>
+{% endblock %}
