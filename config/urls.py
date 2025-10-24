@@ -25,5 +25,6 @@ urlpatterns = [
     path('logout/', EmailLogoutView.as_view(), name='logout'),
     path('signup/', SignUpView.as_view(), name='signup'),
     path('finances/', include('finances.urls', namespace='finances')),
+    path('api/', include('finances.api_urls', namespace='api')),
 ]
 

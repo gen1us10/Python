@@ -25,7 +25,13 @@
   {% empty %}
     <em>Немає даних</em>
   {% endfor %}
+
+  <a class="btn btn-sm btn-outline-dark ms-2"
+     href="{% url 'api:convert_totals_to_uah' %}">
+    Показати в UAH (API)
+  </a>
 </div>
+
 
 <table class="table table-striped">
   <thead><tr><th>Дата</th><th>Назва</th><th>Сума</th><th>Категорії</th><th>Таблиця</th><th></th></tr></thead>
