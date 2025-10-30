@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 
+
 class UserManager(BaseUserManager):
     use_in_migrations = True
 
@@ -27,9 +28,10 @@ class UserManager(BaseUserManager):
             raise ValueError('Superuser must have is_superuser=True.')
         return self._create_user(email, password, **extra_fields)
 
+
 class User(AbstractUser):
-    username = None                           
-    email = models.EmailField(unique=True)   
+    username = None
+    email = models.EmailField(unique=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []

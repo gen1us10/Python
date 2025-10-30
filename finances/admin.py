@@ -1,5 +1,7 @@
 from django.contrib import admin
-from .models import Table, Category, Transaction
+
+from .models import Category, Table, Transaction
+
 
 @admin.register(Table)
 class TableAdmin(admin.ModelAdmin):
@@ -7,10 +9,12 @@ class TableAdmin(admin.ModelAdmin):
     search_fields = ('name', 'owner__email')
     list_filter = ('created_at',)
 
+
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('name',)
     search_fields = ('name',)
+
 
 @admin.register(Transaction)
 class TransactionAdmin(admin.ModelAdmin):

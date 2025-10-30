@@ -1,5 +1,6 @@
-import requests
 from datetime import datetime, timedelta
+
+import requests
 from django.conf import settings
 
 BASE_URL = 'https://openexchangerates.org/api'
@@ -26,7 +27,6 @@ def get_latest_rates():
     1 USD = rates['EUR']
     и т.д.
     """
-    global _cached_rates
 
     now = datetime.utcnow()
 
