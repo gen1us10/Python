@@ -32,16 +32,23 @@
   </a>
 </div>
 
-
 <table class="table table-striped">
-  <thead><tr><th>Дата</th><th>Назва</th><th>Сума</th><th>Категорії</th><th>Таблиця</th><th></th></tr></thead>
+  <thead>
+    <tr><th>Дата</th><th>Назва</th><th>Сума</th><th>Категорії</th><th>Таблиця</th><th></th></tr>
+  </thead>
   <tbody>
     {% for tx in object_list %}
       <tr>
         <td>{{ tx.date }}</td>
         <td>{{ tx.title }}</td>
         <td>{{ tx.amount }} {{ tx.currency }}</td>
-        <td>{% for c in tx.categories.all %}<span class="badge bg-light text-dark">{{ c.name }}</span>{% empty %}-{% endfor %}</td>
+        <td>
+          {% for c in tx.categories.all %}
+            <span class="badge bg-light text-dark">{{ c.name }}</span>
+          {% empty %}
+            -
+          {% endfor %}
+        </td>
         <td>{{ tx.table.name }}</td>
         <td>
           <a class="btn btn-sm btn-outline-primary" href="{% url 'finances:transaction_update' tx.pk %}">Edit</a>
@@ -53,4 +60,74 @@
     {% endfor %}
   </tbody>
 </table>
+
+<hr class="my-4">
+<h2 class="h5 mb-3">Середні витрати за категоріями (в UAH)</h2>
+<canvas id="catAvgChart" height="120"></canvas>
+<small class="text-muted d-block mt-2" id="chartNote"></small>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+(async function () {
+  const note = document.getElementById('chartNote');
+  const ctx = document.getElementById('catAvgChart').getContext('2d');
+
+  try {
+    const resp = await fetch("{% url 'api:avg_by_category' %}", {credentials: 'same-origin'});
+    if (!resp.ok) {
+      note.textContent = 'Не вдалося завантажити дані для графіка (потрібен вхід, або помилка API).';
+      return;
+    }
+
+    const raw = await resp.json(); // [{categories__name, currency, avg_amount}]
+    const onlyUAH = raw.filter(r => r.currency === 'UAH');
+
+    if (!onlyUAH.length) {
+      note.textContent = 'Немає даних у валюті UAH для побудови графіка (додайте транзакції в UAH).';
+      return;
+    }
+
+    const map = new Map();
+    for (const row of onlyUAH) {
+      const cat = row.categories__name || 'Без категорії';
+      const prev = map.get(cat) || [];
+      prev.push(Number(row.avg_amount) || 0);
+      map.set(cat, prev);
+    }
+
+    const labels = [];
+    const data = [];
+    for (const [cat, arr] of map.entries()) {
+      const avg = arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0;
+      labels.push(cat);
+      data.push(Number(avg.toFixed(2)));
+    }
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Середні витрати (UAH)',
+          data,
+          backgroundColor: 'rgba(54, 162, 235, 0.6)',
+          borderColor: 'rgba(54, 162, 235, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+      }
+    });
+  } catch (e) {
+    console.error(e);
+    note.textContent = 'Помилка побудови графіка.';
+  }
+})();
+</script>
 {% endblock %}
